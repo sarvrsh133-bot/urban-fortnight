@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>For You — I'm Sorry ❤️</title>
+<style>
+  :root{
+    --bg:#faf6f7; --card:#ffffff; --accent:#c85a7a; --muted:#7a6b73;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    background:linear-gradient(180deg,#faf2f4 0%,#fff 100%);
+    color:#2b2b2b;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:920px;margin:18px auto;padding:16px}
+  .card{background:var(--card);border-radius:14px;padding:18px;box-shadow:0 8px 28px rgba(18,10,12,0.06)}
+  h1{text-align:center;color:var(--accent)}
+  button.btn{background:var(--accent);color:#fff;border:0;padding:10px 14px;border-radius:10px;font-weight:700;cursor:pointer}
+  button.ghost{background:transparent;border:1px solid rgba(200,90,120,0.2);color:var(--accent)}
+  .games{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:14px}
+  #bubbleArea{height:160px;border-radius:10px;position:relative;background:#fff6f8;overflow:hidden}
+  .hole{height:76px;border-radius:8px;background:#fff0f4;display:grid;place-items:center;overflow:hidden}
+  #smashMeTarget{width:110px;height:110px;border-radius:12px;display:grid;place-items:center;font-size:56px;background:#fff7f9;cursor:pointer}
+  .flower{position:fixed;top:-60px;pointer-events:none;animation:fall linear forwards}
+  @keyframes fall{to{transform:translateY(110vh) rotate(360deg);opacity:0}}
+
+  /* FLOWER LAYER */
+  #flowerLayer{
+    position:fixed;
+    left:0;
+    top:0;
+    width:100vw;
+    height:100vh;
+    pointer-events:none;
+    overflow:hidden;
+    z-index:999;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap card">
+    <h1>I'm sorry — for you ❤️</h1>
+
+    <div style="text-align:center;margin-bottom:10px">
+      <button id="revealBtn" class="btn">Reveal a Love Note</button>
+      <button id="surpriseBtn" class="btn ghost">Surprise (Flowers)</button>
+    </div>
+
+    <div id="letterCard" class="card" style="margin-top:10px;display:none;text-align:center">
+      <h3 style="color:var(--accent)">A small note</h3>
+      <p id="noteText" style="color:var(--muted)">—</p>
+    </div>
+
+    <div class="card" style="margin-top:14px;text-align:center">
+      <h3 style="color:var(--accent);margin:0 0 6px">Our song</h3>
+
+      <!-- Spotify embed works -->
+      <iframe style="border-radius:12px;width:100%;height:152px" 
+        src="https://open.spotify.com/embed/track/7FbrGaHYVDmfr7KoLIZnQ7" 
+        allow="encrypted-media">
+      </iframe>
+    </div>
+
+    <div class="games">
+
+      <!-- BUBBLE POP -->
+      <div class="game card">
+        <h3>Bubble Pop</h3>
+        <p>Score: <span id="bubbleScore">0</span> — Time: <span id="bubbleTime">20</span>s</p>
+        <div id="bubbleArea"></div>
+        <button id="startBubbles" class="btn" style="margin-top:8px">Start</button>
+      </div>
+
+      <!-- WHACK A MEME -->
+      <div class="game card">
+        <h3>Whack-a-Meme</h3>
+        <p>Score: <span id="whackScore">0</span> — Time: <span id="whackTime">15</span>s</p>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+          <div class="hole" data-index="0"></div>
+          <div class="hole" data-index="1"></div>
+          <div class="hole" data-index="2"></div>
+        </div>
+        <button id="startWhack" class="btn" style="margin-top:8px">Start</button>
+      </div>
+
+      <!-- PUNCHING BAG -->
+      <div class="game card">
+        <h3>Punching Bag</h3>
+        <div id="punchBag" style="width:120px;height:120px;border-radius:12px;background:#fff7f8;display:grid;place-items:center;font-size:48px;margin:auto;cursor:pointer">👤</div>
+        <p>Hits: <span id="bagHits">0</span></p>
+        <button id="startBag" class="btn ghost">Start Bag</button>
+      </div>
+
+      <!-- SMASH ME -->
+      <div class="game card">
+        <h3>Smash Me</h3>
+        <div id="smashMeTarget">😵</div>
+        <p>Score: <span id="meSmashScore">0</span></p>
+        <button id="startMeSmash" class="btn ghost">Start Smash</button>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="flowerLayer"></div>
+
+<script>
+function el(id){return document.getElementById(id);}  
+
+/* 🌸 FIXED FLOWERS — STABLE ICONS */
+function spawnFlowers(count=10){
+  const layer = el('flowerLayer');
+
+  const imgs = [
+    "https://cdn-icons-png.flaticon.com/512/616/616430.png",
+    "https://cdn-icons-png.flaticon.com/512/616/616408.png",
+    "https://cdn-icons-png.flaticon.com/512/616/616453.png",
+    "https://cdn-icons-png.flaticon.com/512/765/765514.png",
+    "https://cdn-icons-png.flaticon.com/512/765/765500.png",
+    "https://cdn-icons-png.flaticon.com/512/765/765495.png"
+  ];
+
+  for(let i=0;i<count;i++){
+    const f=document.createElement('img');
+    f.src = imgs[Math.floor(Math.random()*imgs.length)];
+    f.className='flower';
+    f.style.left=Math.random()*95+'vw';
+    f.style.animationDuration=(3+Math.random()*3)+'s';
+    f.style.width=(20+Math.random()*26)+'px';
+    layer.appendChild(f);
+    setTimeout(()=>f.remove(),7000);
+  }
+}
+
+/* LOVE NOTE */
+el('revealBtn').onclick = ()=>{
+  el('letterCard').style.display='block';
+  const notes=[
+    "I missed you. I'm sorry. 💗",
+    "You matter to me so much.",
+    "Thank you for being patient with me."
+  ];
+  el('noteText').textContent = notes[Math.floor(Math.random()*notes.length)];
+  spawnFlowers(10);
+};
+
+el('surpriseBtn').onclick = ()=>spawnFlowers(14);
+
+/* BUBBLE GAME */
+let bubbleScore=0, bubbleTime=20, bubbleInterval;
+const bubbleArea=el('bubbleArea');
+
+function spawnBubble(){
+  const b=document.createElement('div');
+  const size=26+Math.random()*40;
+  b.style.width=b.style.height=size+'px';
+  b.style.borderRadius='50%';
+  b.style.background=['#FFD166','#FF6F91','#6BCB77','#A0E7E5'][Math.floor(Math.random()*4)];
+  b.style.position='absolute';
+  b.style.left=Math.random()*(bubbleArea.clientWidth-size)+'px';
+  b.style.top=Math.random()*(bubbleArea.clientHeight-size)+'px';
+  b.style.cursor='pointer';
+  b.onclick=()=>{bubbleScore++; el('bubbleScore').textContent=bubbleScore; b.remove();};
+  bubbleArea.appendChild(b);
+  setTimeout(()=>b.remove(),2500);
+}
+
+el('startBubbles').onclick = ()=>{
+  bubbleScore=0; bubbleTime=20;
+  el('bubbleScore').textContent=0; el('bubbleTime').textContent=bubbleTime;
+  clearInterval(bubbleInterval);
+  bubbleInterval=setInterval(()=>{
+    bubbleTime--; el('bubbleTime').textContent=bubbleTime;
+    spawnBubble();
+    if(bubbleTime<=0) clearInterval(bubbleInterval);
+  },500);
+};
+
+/* WHACK MEME */
+let whackScore=0, whackTime=15, whackInterval;
+const holes=[...document.querySelectorAll('.hole')];
+const memePool=[
+  'https://i.imgflip.com/30zz5g.jpg',
+  'https://i.imgflip.com/1bij.jpg',
+  'https://i.imgflip.com/4t0m5.jpg'
+];
+
+function showMeme(){
+  holes.forEach(h=>h.innerHTML='');
+  const h=holes[Math.floor(Math.random()*holes.length)];
+  const img=document.createElement('img');
+  img.src=memePool[Math.floor(Math.random()*memePool.length)];
+  img.style.width='100%'; img.style.height='100%'; img.style.objectFit='cover';
+  h.appendChild(img);
+  setTimeout(()=>{ if(h.contains(img)) h.innerHTML=''; },800);
+}
+
+el('startWhack').onclick = ()=>{
+  whackScore=0; whackTime=15;
+  el('whackScore').textContent=0; el('whackTime').textContent=whackTime;
+  clearInterval(whackInterval);
+  whackInterval=setInterval(()=>{
+    whackTime--; el('whackTime').textContent = whackTime;
+    showMeme();
+    if (whackTime <= 0) clearInterval(whackInterval);
+  }, 700);
+};
+
+holes.forEach(hole => {
+  hole.onclick = () => {
+    if (hole.innerHTML.trim() !== '') {
+      whackScore++;
+      el('whackScore').textContent = whackScore;
+      hole.innerHTML = '';
+    }
+  };
+});
+
+/* PUNCHING BAG */
+let bagHits = 0;
+el('startBag').onclick = () => {
+  bagHits = 0;
+  el('bagHits').textContent = 0;
+};
+
+el('punchBag').onclick = () => {
+  bagHits++;
+  el('bagHits').textContent = bagHits;
+  el('punchBag').style.transform = 'scale(0.85)';
+  setTimeout(() => el('punchBag').style.transform = 'scale(1)', 120);
+};
+
+/* SMASH ME */
+let meScore = 0;
+el('startMeSmash').onclick = () => {
+  meScore = 0;
+  el('meSmashScore').textContent = 0;
+};
+
+el('smashMeTarget').onclick = () => {
+  meScore++;
+  el('meSmashScore').textContent = meScore;
+  el('smashMeTarget').style.transform = 'scale(0.8) rotate(20deg)';
+  setTimeout(() => el('smashMeTarget').style.transform = 'scale(1)', 150);
+};
+</script>
+</body>
+</html>
