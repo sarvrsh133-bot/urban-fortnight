@@ -1,0 +1,686 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>My Love — Weirdo's Little World 💌</title>
+  <meta name="description" content="A cute, funny and sweet interactive mini-site made by Weirdo for My Love — games, songs, and silly love notes.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=La+Belle+Aurore&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --nav-bg: rgba(255,255,255,0.88);
+      --glass: rgba(255,255,255,0.7);
+      --muted:#6b7280;
+      --accent1:#ffb4c0;
+      --accent2:#ffd6a5;
+      --text:#0b2430;
+      --maxw:1000px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial;
+      color:var(--text); -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+      background:linear-gradient(180deg,#fff6f7,#fffefa);
+      display:flex; align-items:center; justify-content:center; padding:18px;
+    }
+
+    /* container */
+    .container{
+      width:100%; max-width:var(--maxw); min-height:80vh; border-radius:18px; overflow:hidden;
+      box-shadow:0 18px 50px rgba(8,18,30,0.08); background:transparent; position:relative;
+    }
+
+    /* background floating hearts layer */
+    .bg-canvas{position:absolute; inset:0; pointer-events:none; z-index:0}
+
+    /* top nav */
+    header{
+      position:relative; z-index:5; padding:14px 18px; background:var(--nav-bg); backdrop-filter: blur(6px);
+      display:flex; gap:12px; align-items:center; border-bottom:1px solid rgba(11,36,48,0.04);
+    }
+    .brand{display:flex; gap:12px; align-items:center}
+    .avatar{
+      width:52px; height:52px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+      background:linear-gradient(135deg,var(--accent1),var(--accent2)); font-weight:900; color:#05222b; font-size:20px;
+      box-shadow:0 6px 18px rgba(0,0,0,0.06);
+    }
+    .title{font-weight:700; font-size:16px}
+    nav{margin-left:auto; display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+    .nav-btn{
+      background:transparent; border:1px solid rgba(11,36,48,0.06); padding:8px 10px; border-radius:12px; font-weight:700;
+      cursor:pointer; transition:transform .12s ease, box-shadow .12s ease; font-size:13px;
+    }
+    .nav-btn:hover{ transform:translateY(-4px); box-shadow:0 8px 30px rgba(0,0,0,0.06) }
+    .nav-btn.active{ background:linear-gradient(90deg,var(--accent1),var(--accent2)); color:#05222b; box-shadow:0 10px 30px rgba(255,160,180,0.08) }
+
+    /* layout */
+    main{position:relative; z-index:4; padding:20px; display:block}
+    section{display:none; padding:20px; border-radius:12px; min-height:60vh; transition:opacity .34s ease, transform .34s ease; box-sizing:border-box}
+    section.active{ display:block; opacity:1; transform:translateY(0) }
+
+    .card{background:var(--glass); padding:18px; border-radius:12px; border:1px solid rgba(0,0,0,0.03); box-shadow:0 8px 28px rgba(11,36,48,0.04)}
+
+    /* section backgrounds (unique per section) */
+    .bg-home{ background: linear-gradient(135deg,#fff0f4,#fff6eb); }
+    .bg-reasons{ background: linear-gradient(135deg,#ffeef0,#ffd6e0); }
+    .bg-dramatic{ background: linear-gradient(135deg,#f4ebff,#e9e6ff); }
+    .bg-main{ background: linear-gradient(135deg,#fff0e6,#ffe8d0); }
+    .bg-repair{ background: linear-gradient(135deg,#fff0f2,#ffe9f0); }
+    .bg-tracker{ background: linear-gradient(135deg,#e8fbff,#eef8ff); }
+    .bg-emergency{ background: linear-gradient(135deg,#fff0f6,#ffe6ff); }
+    .bg-kiss{ background: linear-gradient(135deg,#fff0f4,#fff1f1); }
+    .bg-match{ background: linear-gradient(135deg,#fffaf0,#f2f5ff); }
+
+    /* headings & text */
+    h2{margin:6px 0 10px; font-size:20px}
+    p.lead{margin:6px 0 12px; color:var(--muted)}
+
+    /* controls */
+    .controls{display:flex; gap:12px; margin-top:12px; flex-wrap:wrap}
+    .btn{background:linear-gradient(90deg,var(--accent1),var(--accent2)); border:none; padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:800; color:#05222b; display:inline-flex; align-items:center; gap:8px}
+    .btn.ghost{ background:transparent; border:1px solid rgba(11,36,48,0.06); color:var(--muted); font-weight:700}
+
+    .note{color:var(--muted); font-size:13px; margin-top:8px}
+
+    /* spotify card area */
+    .player-wrap{ margin-top:14px; border-radius:12px; padding:10px; border:1px solid rgba(11,36,48,0.04); background:rgba(255,255,255,0.85) }
+    iframe.spotify{ width:100%; height:80px; border-radius:8px; border:none }
+
+    /* games layout */
+    .play-area{ margin-top:12px; border-radius:12px; background:linear-gradient(180deg,rgba(255,255,255,0.95),rgba(255,255,255,0.9)); padding:12px; min-height:140px; position:relative }
+    .reason-card{ font-size:16px; min-height:120px; display:flex; align-items:center; justify-content:center; text-align:center; padding:18px; border-radius:12px }
+
+    /* match grid */
+    .grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px }
+    .card-tile{ padding:12px; border-radius:10px; text-align:center; cursor:pointer; background:linear-gradient(180deg,#fff,#fff6f9); border:1px solid rgba(0,0,0,0.04) }
+
+    /* responsive */
+    @media (max-width:880px){
+      .grid{ grid-template-columns:repeat(3,1fr) }
+      header{ padding:12px }
+      nav{ gap:6px }
+      .nav-btn{ padding:8px 8px; font-size:12px }
+      .avatar{ width:46px; height:46px; font-size:18px }
+    }
+    @media (max-width:560px){
+      :root{--maxw:100%; }
+      .grid{ grid-template-columns:repeat(2,1fr) }
+      .avatar{ width:44px; height:44px }
+      section{ padding:14px }
+      header{ flex-wrap:wrap; gap:8px }
+    }
+
+    /* footer love counter */
+    footer.site-foot{ display:flex; justify-content:space-between; align-items:center; gap:10px; padding:12px 18px; border-top:1px solid rgba(11,36,48,0.04); background:var(--nav-bg); z-index:5; position:relative }
+    .love-counter{ font-weight:700; color:#072033 }
+    .copyright{ color:var(--muted); font-size:13px }
+
+  </style>
+</head>
+<body>
+  <div class="container" role="application" aria-label="Weirdo's love site">
+    <!-- floating hearts canvas -->
+    <canvas class="bg-canvas" id="bgCanvas"></canvas>
+
+    <!-- header nav -->
+    <header>
+      <div class="brand">
+        <div class="avatar" aria-hidden="true">W</div>
+        <div>
+          <div class="title">Weirdo's Little World</div>
+          <div style="font-size:12px;color:var(--muted)">Made for My Love 💌</div>
+        </div>
+      </div>
+
+      <nav aria-label="Main navigation">
+        <button class="nav-btn active" data-target="home">🏠 Home</button>
+        <button class="nav-btn" data-target="reasons">💌 Reasons</button>
+        <button class="nav-btn" data-target="dramatic">🎭 Dramatic</button>
+        <button class="nav-btn" data-target="mainc">🎬 Main Character</button>
+        <button class="nav-btn" data-target="repair">💔 Heart Repair</button>
+        <button class="nav-btn" data-target="tracker">🧠 Thought Tracker</button>
+        <button class="nav-btn" data-target="emergency">🚨 Emergency</button>
+        <button class="nav-btn" data-target="kiss">💋 Kiss Game</button>
+        <button class="nav-btn" data-target="match">💞 Match Game</button>
+      </nav>
+    </header>
+
+    <!-- main content -->
+    <main>
+      <!-- HOME -->
+      <section id="home" class="active bg-home card" aria-labelledby="homeTitle">
+        <h2 id="homeTitle">My Love — this is your Weirdo's little world 💌</h2>
+        <p class="lead">Welcome, my love. I made this tiny universe to make you smile — games, music, dramatics and cheesy lines included. Tap around and steal my heart whenever you like.</p>
+
+        <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:10px">
+          <button class="btn" data-target="reasons">Open Reasons 💌</button>
+          <button class="btn" data-target="kiss">Play Kiss Game 💋</button>
+          <button class="btn ghost" data-target="match">Play Match Game 💞</button>
+          <button class="btn ghost" data-target="dramatic">Get Dramatic 🎭</button>
+        </div>
+
+        <div style="margin-top:14px" class="card">
+          <strong>Little starter line:</strong>
+          <div style="margin-top:8px">Hey my love — your certified clown (weirdo) made this for you because I love watching you smile. Press around for chaos and sweetness in equal parts.</div>
+        </div>
+
+        <div style="margin-top:12px" class="note">Tip: Each page has its own <strong>Play Song 🎵</strong> button that reveals a Spotify player for that moment.</div>
+      </section>
+
+      <!-- REASONS / APOLOGY -->
+      <section id="reasons" class="bg-reasons" aria-labelledby="reasonsTitle">
+        <div class="card reason-card">
+          <div style="width:100%">
+            <h2 id="reasonsTitle">Reasons & a small sorry — for My Love</h2>
+            <p class="lead">Breaking news: your weirdo has something to say 🗞️💌</p>
+
+            <div id="reasonBox" style="margin-top:10px">
+              <div id="reasonText" style="font-size:16px; color:#05222b; text-align:center; padding:12px;">
+                Hey my love 💗 — I know I overreacted earlier. Tiny thing, big weirdo energy. I made this page so you know I'm sorry (and also creative).
+              </div>
+            </div>
+
+            <div class="controls">
+              <button class="btn" id="revealSong1">Play Song 🎵 (Song 1)</button>
+              <button class="btn ghost" id="surpriseReason">Surprise me ✨</button>
+            </div>
+
+            <div id="playerArea1" class="player-wrap" style="display:none;">
+              <iframe id="player1" class="spotify" src="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" title="Song 1 player"></iframe>
+              <div class="note">If the player doesn't show, press Play Song again.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- DRAMATIC -->
+      <section id="dramatic" class="bg-dramatic">
+        <div class="card">
+          <h2>🎭 Dramatic Declaration</h2>
+          <p class="lead">A very serious announcement. Contains dramatic energy and a slightly ridiculous plot twist.</p>
+          <div class="play-area">
+            <img src="https://media.giphy.com/media/3o6ZtaO9BZHcOjmErm/giphy.gif" alt="dramatic gif" style="width:100%; border-radius:10px">
+          </div>
+
+          <div class="controls">
+            <button class="btn" id="revealSong2">Play Song 🎵 (Song 2)</button>
+            <button class="btn ghost" id="dramaticAction">Make it extra dramatic</button>
+          </div>
+
+          <div id="playerArea2" class="player-wrap" style="display:none;">
+            <iframe id="player2" class="spotify" src="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" title="Song 2 player"></iframe>
+          </div>
+        </div>
+      </section>
+
+      <!-- MAIN CHARACTER -->
+      <section id="mainc" class="bg-main">
+        <div class="card">
+          <h2>🎬 Main Character: My Love</h2>
+          <p class="lead">Starring: My Love 💖 — Directed by: Weirdo. A short trailer to remind you how you are always the star.</p>
+          <div class="play-area">
+            <div style="text-align:center; padding:12px">
+              <div style="font-size:38px">🌟</div>
+              <div style="margin-top:8px; font-weight:700">Now featuring: My Love</div>
+              <div style="color:var(--muted); margin-top:6px">Genre: Romantic Chaos — 10/10</div>
+            </div>
+          </div>
+
+          <div class="controls" style="margin-top:12px">
+            <button class="btn" data-target-play="1">Play Song 🎵 (Song 1)</button>
+            <button class="btn ghost" id="posterBtn">Show Poster</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- HEART REPAIR -->
+      <section id="repair" class="bg-repair">
+        <div class="card">
+          <h2>💔 Heart Repair Request</h2>
+          <p class="lead">Fill a tiny form to request a repair (it’s mostly for show — the actual repair is hugs).</p>
+
+          <div style="margin-top:10px">
+            <label style="display:block; color:var(--muted); margin-bottom:6px">Select cause</label>
+            <select id="causeSel" style="padding:8px; border-radius:8px; width:100%; max-width:360px;">
+              <option>Love overdose</option>
+              <option>Hug deficiency</option>
+              <option>Weirdo antics</option>
+            </select>
+
+            <div style="margin-top:10px">
+              <input id="remedyInput" placeholder="Requested remedy (hugs, snacks...)" style="padding:10px; width:100%; max-width:420px; border-radius:8px; border:1px solid rgba(0,0,0,0.06)">
+            </div>
+
+            <div class="controls" style="margin-top:12px">
+              <button class="btn" id="submitRepair">Submit Repair Request</button>
+              <button class="btn ghost" data-target-play="2">Play Song 🎵 (Song 2)</button>
+            </div>
+
+            <div id="repairResult" style="margin-top:12px; color:var(--muted)"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- THOUGHT TRACKER -->
+      <section id="tracker" class="bg-tracker">
+        <div class="card">
+          <h2>🧠 Weirdo's Thought Tracker</h2>
+          <p class="lead">Live analytics: % of brain occupied by My Love (very scientific).</p>
+
+          <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:12px">
+            <div style="flex:1; min-width:160px; padding:12px; border-radius:10px; background:#fff">Thoughts about My Love<div style="font-weight:900; font-size:22px; margin-top:6px" id="pct">99%</div></div>
+            <div style="flex:1; min-width:120px; padding:12px; border-radius:10px; background:#fff">Snack thoughts<div style="font-weight:900; font-size:22px; margin-top:6px" id="snack">1%</div></div>
+            <div style="flex:1; min-width:120px; padding:12px; border-radius:10px; background:#fff">Times thought today<div style="font-weight:900; font-size:22px; margin-top:6px" id="times">478</div></div>
+          </div>
+
+          <div class="controls" style="margin-top:14px">
+            <button class="btn" id="bumpBtn">Think about you more ❤️</button>
+            <button class="btn ghost" data-target-play="1">Play Song 🎵 (Song 1)</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- EMERGENCY -->
+      <section id="emergency" class="bg-emergency">
+        <div class="card" style="text-align:center">
+          <h2>🚨 Emergency Button</h2>
+          <p class="lead">Press if you miss your weirdo.</p>
+
+          <button class="btn" id="emergencyBtn">PRESS IF YOU MISS HIM</button>
+        </div>
+      </section>
+
+      <!-- KISS GAME -->
+      <section id="kiss" class="bg-kiss">
+        <div class="card">
+          <h2>💋 Tap to Kiss Your Weirdo</h2>
+          <p class="lead">Tap hearts that appear to collect kisses. Each tap gives a cute line.</p>
+
+          <div class="play-area" id="kissArea" style="min-height:220px"></div>
+
+          <div style="display:flex; gap:12px; align-items:center; margin-top:12px">
+            <div>Kisses: <strong id="kissScore">0</strong></div>
+            <div style="margin-left:auto">
+              <button class="btn" id="kissReset">Reset</button>
+              <button class="btn ghost" data-target-play="2">Play Song 🎵 (Song 2)</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MATCH GAME -->
+      <section id="match" class="bg-match">
+        <div class="card">
+          <h2>💞 Match the Moments</h2>
+          <p class="lead">Find the matching pairs of cute moments.</p>
+
+          <div class="grid" id="matchGrid" style="margin-top:12px"></div>
+
+          <div style="text-align:center; margin-top:12px">
+            Tries: <span id="tries">0</span>
+            <div style="margin-top:8px">
+              <button class="btn" id="resetMatch">Restart</button>
+              <button class="btn ghost" data-target-play="1">Play Song 🎵 (Song 1)</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- footer -->
+    <footer class="site-foot" role="contentinfo">
+      <div class="love-counter" id="loveCounter">Days since Weirdo fell for My Love: 0</div>
+      <div class="copyright">Made with goofy love by your Weirdo ❤️</div>
+    </footer>
+  </div>
+
+  <!-- ---------- SCRIPTS ---------- -->
+  <script>
+    /********************* CONFIG *********************/
+    const SONG1_ID = '3ExgWVPWOQts9RVBkqpdic'; // song 1
+    const SONG2_ID = '3HFjh7QljnUCBLsoTwMuTj'; // song 2
+    const START_DATE = '2024-01-01'; // change this to when "we fell for her" for the day counter (YYYY-MM-DD)
+    const AVATAR_INITIAL = 'W'; // your letter
+    const HER_NICK = 'My Love';
+    const YOUR_NAME = 'Weirdo';
+    /**************************************************/
+
+    // UI elements
+    const navBtns = document.querySelectorAll('.nav-btn');
+    const sections = document.querySelectorAll('main section');
+    const avatar = document.querySelector('.avatar');
+    avatar.textContent = AVATAR_INITIAL;
+
+    // show/hide sections
+    function showSection(id){
+      sections.forEach(s => {
+        if(s.id === id){
+          s.classList.add('active');
+          s.style.display = 'block';
+        } else {
+          s.classList.remove('active');
+          s.style.display = 'none';
+        }
+      });
+      navBtns.forEach(b => b.classList.toggle('active', b.dataset.target === id));
+      // trigger a small background beat
+      animateCanvasPulse();
+    }
+
+    navBtns.forEach(b => {
+      b.addEventListener('click', ()=> {
+        const target = b.dataset.target;
+        showSection(target);
+        window.scrollTo({top:0, behavior:'smooth'});
+      });
+    });
+
+    // default show home
+    showSection('home');
+
+    /* ---------- Spotify players (revealed per section) ---------- */
+    const player1 = document.getElementById('player1');
+    const player2 = document.getElementById('player2');
+    const playerArea1 = document.getElementById('playerArea1');
+    const playerArea2 = document.getElementById('playerArea2');
+
+    document.getElementById('revealSong1').addEventListener('click', ()=> {
+      if(playerArea1.style.display === 'none' || playerArea1.style.display === ''){
+        player1.src = `https://open.spotify.com/embed/track/${SONG1_ID}?utm_source=generator`;
+        playerArea1.style.display = 'block';
+      } else {
+        player1.src = '';
+        playerArea1.style.display = 'none';
+      }
+    });
+
+    document.getElementById('revealSong2').addEventListener('click', ()=> {
+      if(playerArea2.style.display === 'none' || playerArea2.style.display === ''){
+        player2.src = `https://open.spotify.com/embed/track/${SONG2_ID}?utm_source=generator`;
+        playerArea2.style.display = 'block';
+      } else {
+        player2.src = '';
+        playerArea2.style.display = 'none';
+      }
+    });
+
+    // global data-target-play buttons (play song 1 or 2)
+    document.querySelectorAll('[data-target-play]').forEach(btn => {
+      btn.addEventListener('click', ()=> {
+        const which = btn.getAttribute('data-target-play');
+        if(which === '1'){
+          // reveal player1
+          player1.src = `https://open.spotify.com/embed/track/${SONG1_ID}?utm_source=generator`;
+          playerArea1.style.display = 'block';
+          showSection('home'); // keep UX consistent: show home briefly then open where needed
+        } else {
+          player2.src = `https://open.spotify.com/embed/track/${SONG2_ID}?utm_source=generator`;
+          playerArea2.style.display = 'block';
+        }
+        animateCanvasPulse();
+      });
+    });
+
+    /* ---------- Reasons page surprise ---------- */
+    document.getElementById('surpriseReason').addEventListener('click', ()=>{
+      const rt = document.getElementById('reasonText');
+      rt.innerHTML = "<strong>Surprise!</strong> I bribed a tiny orchestra (aka my phone) to play your song. Also — I promise to be only slightly dramatic next episode. 🥹";
+      triggerFloating(4200);
+    });
+
+    /* ---------- Dramatize button ---------- */
+    document.getElementById('dramaticAction').addEventListener('click', ()=> {
+      alert("A solemn carriage approaches... but actually it's me with snacks. 🎪🍿");
+      triggerFloating(3000);
+    });
+
+    /* ---------- Heart Repair form ---------- */
+    document.getElementById('submitRepair').addEventListener('click', ()=>{
+      const remedy = document.getElementById('remedyInput').value || 'Hugs & snacks';
+      const cause = document.getElementById('causeSel').value;
+      const out = document.getElementById('repairResult');
+      out.innerHTML = `Request received: <strong>${remedy}</strong> for <em>${cause}</em>. Dispatching one weirdo with maximum sincerity. 💌`;
+      triggerFloating(3800);
+    });
+
+    /* ---------- Thought tracker ---------- */
+    let tCount = parseInt(document.getElementById('times').textContent || '478');
+    setInterval(()=> {
+      tCount++;
+      document.getElementById('times').textContent = tCount;
+    }, 3000);
+    document.getElementById('bumpBtn').addEventListener('click', ()=> {
+      document.getElementById('pct').textContent = '100%';
+      document.getElementById('snack').textContent = '0%';
+      setTimeout(()=> { document.getElementById('pct').textContent='99%'; document.getElementById('snack').textContent='1%'; }, 3600);
+      triggerFloating(3200);
+    });
+
+    /* ---------- Emergency button ---------- */
+    document.getElementById('emergencyBtn').addEventListener('click', ()=>{
+      const note = document.createElement('div');
+      note.style.position='fixed'; note.style.left='50%'; note.style.top='14%'; note.style.transform='translateX(-50%)';
+      note.style.background='rgba(255,255,255,0.95)'; note.style.padding='14px 18px'; note.style.borderRadius='12px';
+      note.style.boxShadow='0 10px 30px rgba(0,0,0,0.08)'; note.innerHTML="<strong>Awww you pressed it 😭</strong><div>One weirdo on the way (mentally). ❤️</div>";
+      document.body.appendChild(note);
+      setTimeout(()=> note.remove(),4200);
+      triggerFloating(4200);
+    });
+
+    /* ---------- Kiss game ---------- */
+    let kissScore = 0;
+    const kissArea = document.getElementById('kissArea');
+    function spawnHeart(){
+      const h = document.createElement('div');
+      h.className = 'tap-heart';
+      h.textContent = '💖';
+      h.style.position = 'absolute';
+      const x = Math.random()*84 + 6;
+      const y = Math.random()*70 + 6;
+      h.style.left = x + '%';
+      h.style.top = y + '%';
+      h.style.fontSize = (24 + Math.random()*28) + 'px';
+      h.style.cursor = 'pointer';
+      h.style.userSelect = 'none';
+      h.addEventListener('click', ()=> {
+        kissScore++; document.getElementById('kissScore').textContent = kissScore;
+        h.style.transform = 'scale(0)'; h.style.opacity = 0;
+        showTempLine();
+        setTimeout(()=> { if(h.parentNode) h.remove(); }, 300);
+      });
+      kissArea.appendChild(h);
+      setTimeout(()=> { if(h.parentNode) h.remove(); }, 2400);
+    }
+    function showTempLine(){
+      const lines = ['You’re my favorite notification.','+1 kiss unlocked.','Stop being so cute.','I owe you snacks.'];
+      const t = document.createElement('div');
+      t.textContent = lines[Math.floor(Math.random()*lines.length)];
+      t.style.position='absolute'; t.style.left='10px'; t.style.bottom='10px'; t.style.background='rgba(255,255,255,0.95)';
+      t.style.padding='8px 10px'; t.style.borderRadius='8px'; t.style.boxShadow='0 10px 30px rgba(0,0,0,0.06)';
+      t.style.zIndex=10;
+      kissArea.appendChild(t);
+      setTimeout(()=> t.remove(),1200);
+    }
+    let heartInterval = setInterval(spawnHeart, 700);
+    document.getElementById('kissReset').addEventListener('click', ()=>{
+      kissScore=0; document.getElementById('kissScore').textContent = 0;
+      // clear hearts
+      document.querySelectorAll('#kissArea .tap-heart').forEach(n=>n.remove());
+    });
+
+    /* ---------- Match game ---------- */
+    const moments = ['Your laugh','Our first snack','Hoodie theft','Late-night dance','Movie marathon','Secret inside joke','Morning sleepy face','Best eye-roll'];
+    let pairs = [];
+    let shownMatch = null;
+    let tries = 0;
+    let matches = 0;
+    const grid = document.getElementById('matchGrid');
+    function setupMatch(){
+      grid.innerHTML = ''; tries = 0; matches = 0; document.getElementById('tries').textContent = tries;
+      pairs = shuffle([...moments, ...moments]);
+      pairs.forEach((txt,i)=>{
+        const tile = document.createElement('div');
+        tile.className='card-tile';
+        tile.textContent='?';
+        tile.tabIndex = 0;
+        tile.dataset.val = txt;
+        tile.addEventListener('click', ()=> cardClick(tile));
+        grid.appendChild(tile);
+      });
+    }
+    function cardClick(tile){
+      if(tile.classList.contains('matched') || tile === shownMatch) return;
+      tile.textContent = tile.dataset.val;
+      if(!shownMatch){ shownMatch = tile; return; }
+      tries++; document.getElementById('tries').textContent = tries;
+      if(shownMatch.dataset.val === tile.dataset.val){
+        shownMatch.classList.add('matched'); tile.classList.add('matched'); matches++;
+        shownMatch = null;
+        if(matches === moments.length){
+          setTimeout(()=> { alert("You matched all the moments! ❤️"); }, 250);
+        }
+      } else {
+        setTimeout(()=> { shownMatch.textContent='?'; tile.textContent='?'; shownMatch=null; }, 700);
+      }
+    }
+    function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]] } return a; }
+    document.getElementById('resetMatch').addEventListener('click', setupMatch);
+
+    // init match
+    setupMatch();
+
+    /* ---------- Floating hearts canvas ---------- */
+    const canvas = document.getElementById('bgCanvas');
+    const ctx = canvas.getContext('2d');
+    let pieces = [];
+    function resizeCanvas(){
+      canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function spawnPieces(){
+      pieces = [];
+      const colors = ['#ff9fb1','#ffd6a5','#ffcad4','#ffd6ea','#c1f0e8'];
+      for(let i=0;i<80;i++){
+        pieces.push({
+          x: Math.random()*canvas.width,
+          y: Math.random()*canvas.height,
+          vy: 0.2 + Math.random()*1.2,
+          size: 6 + Math.random()*18,
+          rot: Math.random()*360,
+          color: colors[i%colors.length],
+          life: Math.random()*600 + 600
+        });
+      }
+    }
+    spawnPieces();
+
+    let rafId;
+    function drawPieces(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      pieces.forEach(p=>{
+        p.y -= p.vy;
+        p.rot += 0.8;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot*Math.PI/180);
+        ctx.fillStyle = p.color;
+        // draw simple heart-ish shape sometimes
+        if(Math.random() > 0.6){
+          const s = p.size/1.6;
+          ctx.beginPath();
+          ctx.moveTo(0,-s/3);
+          ctx.bezierCurveTo(s*0.5,-s*1.2,s*1.2,-s/3,0,s);
+          ctx.bezierCurveTo(-s*1.2,-s/3,-s*0.5,-s*1.2,0,-s/3);
+          ctx.fill();
+        } else {
+          ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size*0.6);
+        }
+        ctx.restore();
+        if(p.y < -40) p.y = canvas.height + 40;
+      });
+      rafId = requestAnimationFrame(drawPieces);
+    }
+    drawPieces();
+
+    // pulse animation (brief)
+    function animateCanvasPulse(){
+      // small visual pulse by tinting the background for a moment
+      const orig = document.body.style.background;
+      document.body.animate([{filter:'brightness(1)'},{filter:'brightness(1.04)'},{filter:'brightness(1)'}], {duration:420});
+    }
+
+    // trigger brief floating confetti in the canvas area
+    function triggerFloating(duration = 4200){
+      // simple quick burst (we'll reuse pieces array temporarily)
+      const temp = [];
+      const colors = ['#ff9fb1','#ffd6a5','#ffcad4','#ffd6ea','#c1f0e8'];
+      for(let i=0;i<70;i++){
+        temp.push({
+          x: Math.random()*canvas.width,
+          y: canvas.height + Math.random()*200,
+          vy: 1 + Math.random()*4,
+          size: 6 + Math.random()*20,
+          rot: Math.random()*360,
+          color: colors[i%colors.length],
+          heart: Math.random() > 0.5
+        });
+      }
+      let raf; function drawTemp(){
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        temp.forEach(p=>{
+          p.y -= p.vy;
+          p.rot += 4;
+          ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot*Math.PI/180);
+          if(p.heart){
+            ctx.beginPath(); const s = p.size/1.6;
+            ctx.moveTo(0,-s/3); ctx.bezierCurveTo(s*0.5,-s*1.2,s*1.2,-s/3,0,s);
+            ctx.bezierCurveTo(-s*1.2,-s/3,-s*0.5,-s*1.2,0,-s/3); ctx.closePath(); ctx.fillStyle=p.color; ctx.fill();
+          } else { ctx.fillStyle=p.color; ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size*0.6); }
+          ctx.restore();
+          if(p.y < -40){ p.y = canvas.height + 40; p.x = Math.random()*canvas.width; }
+        });
+        raf = requestAnimationFrame(drawTemp);
+      }
+      drawTemp();
+      setTimeout(()=>{ cancelAnimationFrame(raf); spawnPieces(); }, duration);
+    }
+
+    /* ---------- Days counter (love counter) ---------- */
+    function daysSince(dateStr){
+      const start = new Date(dateStr + 'T00:00:00');
+      const now = new Date();
+      const diff = Math.floor((now - start) / (1000*60*60*24));
+      return diff >= 0 ? diff : 0;
+    }
+    function updateLoveCounter(){
+      const el = document.getElementById('loveCounter');
+      el.textContent = `Days since Weirdo fell for ${HER_NICK}: ${daysSince(START_DATE)}`;
+    }
+    updateLoveCounter();
+
+    // set HER_NICK in header if needed (small personalization)
+    document.querySelector('.title').textContent = "Weirdo's Little World — for " + HER_NICK;
+
+    /* ---------- Accessibility: keyboard nav via arrow keys ---------- */
+    (function keyboardNav(){
+      let idx = 0;
+      const btns = Array.from(document.querySelectorAll('.nav-btn'));
+      btns.forEach((b,i)=>b.addEventListener('focus', ()=> idx = i));
+      document.addEventListener('keydown', (e)=>{
+        if(e.key === 'ArrowRight'){ idx = (idx+1) % btns.length; btns[idx].focus(); btns[idx].click(); }
+        if(e.key === 'ArrowLeft'){ idx = (idx-1 + btns.length) % btns.length; btns[idx].focus(); btns[idx].click(); }
+      });
+    })();
+
+    /* ---------- small startup tweaks ---------- */
+    // Make sure to show home initially (already set by showSection)
+    showSection('home');
+
+    // touch-friendly improvements (prevent accidental zoom) we leave default mobile pinch/zoom behaviour
+  </script>
+</body>
+</html>
